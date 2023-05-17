@@ -1,4 +1,4 @@
-export const handler = async(event) => {
+const handler = async(event) => {
     // TODO implement
     const response = {
         statusCode: 200,
@@ -6,3 +6,5 @@ export const handler = async(event) => {
     };
     return response;
 };
+
+module.exports = { handler };
