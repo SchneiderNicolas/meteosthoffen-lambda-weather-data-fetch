@@ -1,0 +1,23 @@
+{
+  "name": "meteosthoffen-lambda-weather-data-fetch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SchneiderNicolas/meteosthoffen-lambda-weather-data-fetch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SchneiderNicolas/meteosthoffen-lambda-weather-data-fetch/issues"
+  },
+  "homepage": "https://github.com/SchneiderNicolas/meteosthoffen-lambda-weather-data-fetch#readme",
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
+}
