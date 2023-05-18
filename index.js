@@ -20,15 +20,32 @@ exports.handler = async (event) => {
     hmac.update(message);
     const signature = hmac.digest('hex');
 
-
     const url = `https://api.weatherlink.com/v2/current/${stationId}?api-key=${apiKey}&t=${t}&api-signature=${signature}`;
 
     try {
         const response = await axios.get(url);
         console.log(response.data);
-        return response.data;
+        return {
+            statusCode: 200,
+            body: response.data
+        };
     } catch (error) {
         console.error(error);
-        throw error;
+        if (error.response) {
+            return {
+                statusCode: error.response.status,
+                body: error.message
+            };
+        } else if (error.request) {
+            return {
+                statusCode: 500,
+                body: 'The request was made but no response was received'
+            };
+        } else {
+            return {
+                statusCode: 500,
+                body: 'An unknown error occurred'
+            };
+        }
     }
 };
