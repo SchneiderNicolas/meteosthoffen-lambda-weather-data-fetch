@@ -27,14 +27,14 @@ exports.handler = async (event) => {
         console.log(response.data);
         return {
             statusCode: 200,
-            body: response.data
+            body: JSON.stringify(response.data)
         };
     } catch (error) {
         console.error(error);
         if (error.response) {
             return {
                 statusCode: error.response.status,
-                body: error.message
+                body: JSON.stringify(error.message)
             };
         } else if (error.request) {
             return {
@@ -42,6 +42,7 @@ exports.handler = async (event) => {
                 body: 'The request was made but no response was received'
             };
         } else {
+
             return {
                 statusCode: 500,
                 body: 'An unknown error occurred'
