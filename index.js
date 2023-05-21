@@ -1,10 +1,12 @@
 const crypto = require('crypto');
 const axios = require('axios');
+const AWS = require('aws-sdk');
+const lambda = new AWS.Lambda();
 
 exports.handler = async (event) => {
     const apiKey = process.env.API_KEY;
     const apiSecret = process.env.API_SECRET;
-    const stationId = process.env.STATION_ID;
+    const stationId = "156292";
 
     const t = Math.floor(Date.now() / 1000).toString();
 
@@ -44,36 +46,53 @@ exports.handler = async (event) => {
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
 
-    // Fallback to weather data if weather station data is not available
     let temp_out = weatherStationData.temp_out || weatherData.current_weather.temperature;
     let wind_speed = weatherStationData.wind_speed || weatherData.current_weather.windspeed;
     let wind_dir = weatherStationData.wind_dir || weatherData.current_weather.winddirection;
     let weather_code = weatherData.current_weather.weathercode;
 
-    // Get the index of current weather time in hourly data
     let currentTime = weatherData.current_weather.time;
     let timeIndex = weatherData.hourly.time.indexOf(currentTime);
 
-    // Fallback to weather data if weather station data is not available
     let hum_out = weatherStationData.hum_out || weatherData.hourly.relativehumidity_2m[timeIndex];
     let dew_point = weatherStationData.dew_point || weatherData.hourly.dewpoint_2m[timeIndex];
     let bar = weatherStationData.bar || weatherData.hourly.surface_pressure[timeIndex];
 
-    // Get daily rain sum
     let rain_day_mm = weatherData.daily.rain_sum[0];
 
     const dataToSend = {
-        temp_out: temp_out,
-        wind_speed: wind_speed,
+        temp_out: temp_out, // station far to celsius
+        wind_speed: wind_speed, // mph to km/h
         wind_dir: wind_dir,
-        dew_point: dew_point,
-        bar: bar,
+        dew_point: dew_point, // farenheit to celcius
+        bar: bar, // inHg to hPa
         hum_out: hum_out,
         rain_day_mm: rain_day_mm,
         weather_code: weather_code,
         stationDown: stationDown,
         errorMessage: errorMessage
     };
+
+    // Send error message to Discord if the station is down
+    if (stationDown) {
+        const payload = {
+            discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL,
+            message: errorMessage,
+            stationId: stationId
+        };
+
+        const params = {
+            FunctionName: process.env.DISCORD_NOTIFICATION_LAMBDA,
+            InvocationType: 'Event',
+            Payload: JSON.stringify(payload)
+        };
+
+        try {
+            await lambda.invoke(params).promise();
+        } catch (error) {
+            console.error('Failed to invoke Discord Notification Lambda:', error);
+        }
+    }
 
     return {
         statusCode: 200,
