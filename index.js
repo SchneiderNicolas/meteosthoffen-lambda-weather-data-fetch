@@ -33,7 +33,11 @@ exports.handler = async (event) => {
     } catch (error) {
         console.error('Error fetching weather station data:', error);
         stationDown = true;
-        errorMessage = error.toString();
+        if (error.response && error.response.data) {
+            errorMessage = error.response.data.message;
+        } else {
+            errorMessage = error.toString();
+        }
     }
 
     try {
