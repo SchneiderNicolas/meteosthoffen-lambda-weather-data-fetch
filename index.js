@@ -6,7 +6,7 @@ const lambda = new AWS.Lambda();
 exports.handler = async (event) => {
     const apiKey = process.env.API_KEY;
     const apiSecret = process.env.API_SECRET;
-    const stationId = "156292";
+    const stationId = process.env.STATION_ID;
 
     const t = Math.floor(Date.now() / 1000).toString();
 
