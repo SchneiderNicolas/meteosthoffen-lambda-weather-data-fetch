@@ -50,8 +50,8 @@ exports.handler = async (event) => {
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
 
-    let temp_out = weatherStationData.temp_out ? (weatherStationData.temp_out - 32) * 5 / 9 : weatherData.current_weather.temperature;
-    let wind_speed = weatherStationData.wind_speed ? weatherStationData.wind_speed * 1.609344 : weatherData.current_weather.windspeed;
+    let temp_out = weatherStationData.temp_out ? Math.round(((weatherStationData.temp_out - 32) * 5 / 9) * 100) / 100 : weatherData.current_weather.temperature;
+    let wind_speed = weatherStationData.wind_speed ? Math.round((weatherStationData.wind_speed * 1.609344) * 100) / 100 : weatherData.current_weather.windspeed;
     let wind_dir = weatherStationData.wind_dir || weatherData.current_weather.winddirection;
     let weather_code = weatherData.current_weather.weathercode;
 
@@ -59,23 +59,27 @@ exports.handler = async (event) => {
     let timeIndex = weatherData.hourly.time.indexOf(currentTime);
 
     let hum_out = weatherStationData.hum_out || weatherData.hourly.relativehumidity_2m[timeIndex];
-    let dew_point = weatherStationData.dew_point ? (weatherStationData.dew_point - 32) * 5 / 9 : weatherData.hourly.dewpoint_2m[timeIndex];
-    let bar = weatherStationData.bar ? weatherStationData.bar * 33.8639 : weatherData.hourly.surface_pressure[timeIndex];
+    let dew_point = weatherStationData.dew_point ? Math.round(((weatherStationData.dew_point - 32) * 5 / 9) * 100) / 100 : weatherData.hourly.dewpoint_2m[timeIndex];
+    let bar = weatherStationData.bar ? Math.round((weatherStationData.bar * 33.8639) * 100) / 100 : weatherData.hourly.surface_pressure[timeIndex];
 
     let rain_day_mm = weatherData.daily.rain_sum[0];
 
     const dataToSend = {
-        temp_out: temp_out,
-        wind_speed: wind_speed,
-        wind_dir: wind_dir,
-        dew_point: dew_point,
-        bar: bar,
-        hum_out: hum_out,
-        rain_day_mm: rain_day_mm,
-        weather_code: weather_code,
-        stationDown: stationDown,
-        errorMessage: errorMessage
-    };
+        values: {
+          temp_out: temp_out,
+          wind_speed: wind_speed,
+          wind_dir: wind_dir,
+          dew_point: dew_point,
+          bar: bar,
+          hum_out: hum_out,
+          rain_day_mm: rain_day_mm,
+          weather_code: weather_code
+        },
+        error: {
+          stationDown: stationDown,
+          errorMessage: errorMessage
+        }
+      };
 
     // Send error message to Discord if the station is down
     if (stationDown) {
