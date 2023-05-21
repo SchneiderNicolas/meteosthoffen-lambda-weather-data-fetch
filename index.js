@@ -50,8 +50,8 @@ exports.handler = async (event) => {
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
 
-    let temp_out = weatherStationData.temp_out || weatherData.current_weather.temperature;
-    let wind_speed = weatherStationData.wind_speed || weatherData.current_weather.windspeed;
+    let temp_out = weatherStationData.temp_out ? (weatherStationData.temp_out - 32) * 5 / 9 : weatherData.current_weather.temperature;
+    let wind_speed = weatherStationData.wind_speed ? weatherStationData.wind_speed * 1.609344 : weatherData.current_weather.windspeed;
     let wind_dir = weatherStationData.wind_dir || weatherData.current_weather.winddirection;
     let weather_code = weatherData.current_weather.weathercode;
 
@@ -59,17 +59,17 @@ exports.handler = async (event) => {
     let timeIndex = weatherData.hourly.time.indexOf(currentTime);
 
     let hum_out = weatherStationData.hum_out || weatherData.hourly.relativehumidity_2m[timeIndex];
-    let dew_point = weatherStationData.dew_point || weatherData.hourly.dewpoint_2m[timeIndex];
-    let bar = weatherStationData.bar || weatherData.hourly.surface_pressure[timeIndex];
+    let dew_point = weatherStationData.dew_point ? (weatherStationData.dew_point - 32) * 5 / 9 : weatherData.hourly.dewpoint_2m[timeIndex];
+    let bar = weatherStationData.bar ? weatherStationData.bar * 33.8639 : weatherData.hourly.surface_pressure[timeIndex];
 
     let rain_day_mm = weatherData.daily.rain_sum[0];
 
     const dataToSend = {
-        temp_out: temp_out, // station far to celsius
-        wind_speed: wind_speed, // mph to km/h
+        temp_out: temp_out,
+        wind_speed: wind_speed,
         wind_dir: wind_dir,
-        dew_point: dew_point, // farenheit to celcius
-        bar: bar, // inHg to hPa
+        dew_point: dew_point,
+        bar: bar,
         hum_out: hum_out,
         rain_day_mm: rain_day_mm,
         weather_code: weather_code,
