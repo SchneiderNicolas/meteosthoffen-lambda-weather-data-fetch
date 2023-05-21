@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/SchneiderNicolas/meteosthoffen-lambda-weather-data-fetch#readme",
   "dependencies": {
+    "aws-sdk": "^2.1381.0",
     "axios": "^1.4.0"
   }
 }
