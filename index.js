@@ -73,7 +73,7 @@ exports.handler = async (event) => {
     const sunsetTime = parseInt(sunset.slice(11, 13), 10) * 100 + parseInt(sunset.slice(14, 16), 10);
     const sunriseTime = parseInt(sunrise.slice(11, 13), 10) * 100 + parseInt(sunrise.slice(14, 16), 10);
     const currentTimeValue = parseInt(currentTime.slice(11, 13), 10) * 100 + parseInt(currentTime.slice(14, 16), 10);
-    const isDay = currentTimeValue < sunriseTime ? false : currentTimeValue <= sunsetTime ? true : false;
+    const is_day = currentTimeValue < sunriseTime ? false : currentTimeValue <= sunsetTime ? true : false;
 
     const dataToSend = {
         values: {
@@ -87,7 +87,7 @@ exports.handler = async (event) => {
           weather_code: weather_code,
           temp_max: temp_max,
           temp_min: temp_min,
-          isDay: isDay
+          is_day: is_day
         },
         error: {
           stationDown: stationDown,
