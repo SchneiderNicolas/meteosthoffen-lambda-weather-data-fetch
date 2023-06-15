@@ -23,7 +23,7 @@ exports.handler = async (event) => {
     const signature = hmac.digest('hex');
 
     const weatherStationUrl = `https://api.weatherlink.com/v2/current/${stationId}?api-key=${apiKey}&t=${t}&api-signature=${signature}`;
-    const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=48.59&longitude=7.56&hourly=relativehumidity_2m,dewpoint_2m,surface_pressure&models=best_match&daily=rain_sum&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin';
+    const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=48.59&longitude=7.56&hourly=relativehumidity_2m,dewpoint_2m,surface_pressure&models=best_match&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,rain_sum&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin';
 
     let weatherStationResponse, weatherResponse, stationDown = false, errorMessage = "";
 
@@ -64,6 +64,17 @@ exports.handler = async (event) => {
 
     let rain_day_mm = weatherData.daily.rain_sum[0];
 
+    let temp_max = weatherData.daily.temperature_2m_max[0];
+    let temp_min = weatherData.daily.temperature_2m_min[0];
+
+    let sunset = weatherData.daily.sunset[0];
+    let sunrise = weatherData.daily.sunrise[0];
+
+    const sunsetTime = parseInt(sunset.slice(11, 13), 10) * 100 + parseInt(sunset.slice(14, 16), 10);
+    const sunriseTime = parseInt(sunrise.slice(11, 13), 10) * 100 + parseInt(sunrise.slice(14, 16), 10);
+    const currentTimeValue = parseInt(currentTime.slice(11, 13), 10) * 100 + parseInt(currentTime.slice(14, 16), 10);
+    const isDay = currentTimeValue < sunriseTime ? false : currentTimeValue <= sunsetTime ? true : false;
+
     const dataToSend = {
         values: {
           temp_out: temp_out,
@@ -73,7 +84,10 @@ exports.handler = async (event) => {
           bar: bar,
           hum_out: hum_out,
           rain_day_mm: rain_day_mm,
-          weather_code: weather_code
+          weather_code: weather_code,
+          temp_max: temp_max,
+          temp_min: temp_min,
+          isDay: isDay
         },
         error: {
           stationDown: stationDown,
