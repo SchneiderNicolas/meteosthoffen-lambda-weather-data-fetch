@@ -25,27 +25,36 @@ exports.handler = async (event) => {
     const weatherStationUrl = `https://api.weatherlink.com/v2/current/${stationId}?api-key=${apiKey}&t=${t}&api-signature=${signature}`;
     const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=48.59&longitude=7.56&hourly=relativehumidity_2m,dewpoint_2m,surface_pressure&models=best_match&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,rain_sum&current_weather=true&forecast_days=1&timezone=Europe%2FBerlin';
 
-    let weatherStationResponse, weatherResponse, stationDown = false, errorMessage = "";
+    let stationDown = false, errorMessage = "";
 
-    try {
-        weatherStationResponse = await axios.get(weatherStationUrl);
-        console.log(weatherStationResponse.data);
-    } catch (error) {
-        console.error('Error fetching weather station data:', error);
-        stationDown = true;
-        if (error.response && error.response.data) {
-            errorMessage = error.response.data.message;
-        } else {
-            errorMessage = error.toString();
+    const getWeatherStationData = async () => {
+        try {
+            return await axios.get(weatherStationUrl);
+        } catch (error) {
+            console.error('Error fetching weather station data:', error);
+            stationDown = true;
+            if (error.response && error.response.data) {
+                errorMessage = error.response.data.message;
+            } else {
+                errorMessage = error.toString();
+            }
+            return null;
         }
-    }
+    };
 
-    try {
-        weatherResponse = await axios.get(weatherUrl);
-        console.log(weatherResponse.data);
-    } catch (error) {
-        console.error('Error fetching weather data:', error);
-    }
+    const getWeatherData = async () => {
+        try {
+            return await axios.get(weatherUrl);
+        } catch (error) {
+            console.error('Error fetching weather data:', error);
+            return null;
+        }
+    };
+
+    let [weatherStationResponse, weatherResponse] = await Promise.all([
+        getWeatherStationData(),
+        getWeatherData()
+    ]);
 
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
