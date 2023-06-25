@@ -59,6 +59,8 @@ exports.handler = async (event) => {
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
 
+    console.log(weatherStationData)
+
     let temp_out = weatherStationData.temp_out ? Math.round(((weatherStationData.temp_out - 32) * 5 / 9) * 100) / 100 : weatherData.current_weather.temperature;
     let wind_speed = weatherStationData.wind_speed ? Math.round((weatherStationData.wind_speed * 1.609344) * 100) / 100 : weatherData.current_weather.windspeed;
     let wind_dir = weatherStationData.wind_dir || weatherData.current_weather.winddirection;
