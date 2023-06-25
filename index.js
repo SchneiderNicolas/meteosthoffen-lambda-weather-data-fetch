@@ -59,8 +59,6 @@ exports.handler = async (event) => {
     const weatherStationData = weatherStationResponse ? weatherStationResponse.data.sensors[0].data[0] : {};
     const weatherData = weatherResponse ? weatherResponse.data : {};
 
-    console.log(weatherStationData)
-
     let temp_out = weatherStationData.temp_out ? Math.round(((weatherStationData.temp_out - 32) * 5 / 9) * 100) / 100 : weatherData.current_weather.temperature;
     let wind_speed = weatherStationData.wind_speed ? Math.round((weatherStationData.wind_speed * 1.609344) * 100) / 100 : weatherData.current_weather.windspeed;
     let wind_dir = weatherStationData.wind_dir || weatherData.current_weather.winddirection;
@@ -73,7 +71,8 @@ exports.handler = async (event) => {
     let dew_point = weatherStationData.dew_point ? Math.round(((weatherStationData.dew_point - 32) * 5 / 9) * 100) / 100 : weatherData.hourly.dewpoint_2m[timeIndex];
     let bar = weatherStationData.bar ? Math.round((weatherStationData.bar * 33.8639) * 100) / 100 : weatherData.hourly.surface_pressure[timeIndex];
 
-    let rain_day_mm = weatherData.daily.rain_sum[0];
+    let rain_day_mm = weatherStationData.rain_day_mm || weatherData.daily.rain_sum[0];
+    let rain_month_mm = weatherStationData.rain_month_mm;
 
     let temp_max = weatherData.daily.temperature_2m_max[0];
     let temp_min = weatherData.daily.temperature_2m_min[0];
@@ -95,6 +94,7 @@ exports.handler = async (event) => {
           bar: bar,
           hum_out: hum_out,
           rain_day_mm: rain_day_mm,
+          rain_month_mm: rain_month_mm,
           weather_code: weather_code,
           temp_max: temp_max,
           temp_min: temp_min,
